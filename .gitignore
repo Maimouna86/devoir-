@@ -1,0 +1,11 @@
+**/__pycache__/
+*.pyc
+.pytest_cache/
+.streamlit/
+.env
+.venv/
+env/
+venv/
+healthcare-dataset-stroke-data.csv
+*.pkl
+.DS_Store
