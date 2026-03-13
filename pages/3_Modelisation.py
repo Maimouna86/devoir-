@@ -108,6 +108,7 @@ fig = px.imshow(cm, text_auto=True,
                 x=["Prédit: Pas d'AVC", "Prédit: AVC"],
                 y=["Réel: Pas d'AVC", "Réel: AVC"],
                 color_continuous_scale='Blues',
+                template='plotly_white',
                 title="Matrice de confusion — ensemble de test")
 fig.update_layout(height=350)
 col1, col2, col3 = st.columns([1, 2, 1])

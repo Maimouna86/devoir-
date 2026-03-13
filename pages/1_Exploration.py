@@ -79,7 +79,8 @@ with col1:
 with col2:
     fig2 = px.histogram(df_f, x='age', color=df_f['stroke'].map({0: "Pas d'AVC", 1: "AVC"}),
                         barmode='overlay', nbins=30,
-                        color_discrete_map={"Pas d'AVC": "#4CAF50", "AVC": "#e94560"},
+color_discrete_map={"Pas d'AVC": "#10b981", "AVC": "#ef4444"},
+                        template="plotly_white",
                         title="Distribution d'âge selon le statut AVC",
                         labels={'color': 'Statut'})
     fig2.update_layout(xaxis_title="Âge", yaxis_title="Nombre de patients")

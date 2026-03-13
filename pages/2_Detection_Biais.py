@@ -102,7 +102,8 @@ with col1:
 with col2:
     fig = px.bar(group_stats, x=sensitive_col, y='Taux_AVC (%)',
                  color=sensitive_col,
-                 color_discrete_sequence=['#e94560', '#4C72B0'],
+                 color_discrete_sequence=['#ef4444', '#3b82f6'],
+                 template='plotly_white',
                  text='Taux_AVC (%)',
                  title=f"Taux d'AVC (%) par {label}")
     fig.update_traces(texttemplate='%{text:.2f}%', textposition='outside')
@@ -216,7 +217,8 @@ with col1:
     fig = px.box(df[df['stroke'] == 1], x=sensitive_col, y=risk_var,
                  color=sensitive_col,
                  title=f"{risk_var} — Patients avec AVC uniquement",
-                 color_discrete_sequence=['#e94560', '#4C72B0'])
+                 color_discrete_sequence=['#ef4444', '#3b82f6'],
+                        template='plotly_white')
     fig.update_layout(showlegend=False)
     st.plotly_chart(fig, use_container_width=True)
 
@@ -228,12 +230,14 @@ with col2:
         cross['Taux AVC (%)'] = cross['stroke'] * 100
         fig2 = px.bar(cross, x=sensitive_col, y='Taux AVC (%)', color='hypertension',
                       barmode='group', title="Taux d'AVC : Hypertension × Groupe",
-                      color_discrete_sequence=['#4CAF50', '#e94560'])
+                      color_discrete_sequence=['#10b981', '#ef4444'],
+                        template='plotly_white')
         st.plotly_chart(fig2, use_container_width=True)
     else:
         fig2 = px.violin(df, x=sensitive_col, y=risk_var,
                          color=df['stroke'].map({0: "Pas d'AVC", 1: "AVC"}),
                          box=True,
-                         color_discrete_map={"Pas d'AVC": "#4CAF50", "AVC": "#e94560"},
+                         color_discrete_map={"Pas d'AVC": "#10b981", "AVC": "#ef4444"},
+                         template='plotly_white',
                          title=f"Distribution de {risk_var} par {label} et statut AVC")
         st.plotly_chart(fig2, use_container_width=True)

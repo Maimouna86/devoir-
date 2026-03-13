@@ -30,12 +30,16 @@ with st.sidebar:
 
 # ── Hero ─────────────────────────────────────────────────────────────────────
 st.markdown("""
-<div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            padding: 3rem 2rem; border-radius: 16px; margin-bottom: 2rem; text-align:center;">
-    <h1 style="color:#e94560; font-size:3rem; margin:0;">🧠 Stroke Bias Detector</h1>
-    <p style="color:#a8b2d8; font-size:1.2rem; margin-top:0.8rem;">
-        Analyse des biais dans la prédiction du risque d'AVC
-    </p>
+<style>
+[data-testid="stAppViewContainer"] {background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);}
+.stMetric > label {font-size: 1.1rem !important;}
+.stMetric > div > div {font-size: 2.5rem !important; font-weight: 700;}
+.section-card {background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 2rem; margin: 1rem 0;}
+.btn-primary {background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important; border-radius: 12px !important;}
+</style>
+<div class="section-card" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #1e40af 100%); color: white; text-align: center;">
+<h1 style="font-size: 4rem; margin: 0 0 1rem 0; text-shadow: 0 4px 10px rgba(0,0,0,0.3);">🧠 Stroke Bias Detector</h1>
+<p style="font-size: 1.5rem; opacity: 0.95;">IA Fair & Prédiction Risque AVC — Analyse des biais sensibles</p>
 </div>
 """, unsafe_allow_html=True)
 
