@@ -10,6 +10,8 @@ Application Streamlit pour l'analyse et la détection de biais dans la prédicti
 
 👉 **[Accéder à l'application](https://your-app-url.streamlit.app)** *(à compléter après déploiement)*
 
+👉 **[Repo GitHub](https://github.com/loic00l/Healthcare)**
+
 ---
 
 ## 📁 Structure du projet
