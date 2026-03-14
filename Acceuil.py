@@ -1,6 +1,8 @@
+# Acceuil.py
 import streamlit as st
 import pandas as pd
 import numpy as np
+from pathlib import Path
 
 # ── Configuration globale ────────────────────────────────────────────────────
 st.set_page_config(
@@ -9,15 +11,24 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ── Chargement des données (cached) ─────────────────────────────────────────
+# ── Chargement des données ───────────────────────────────────────────────────
+DATA_PATH = Path(__file__).parent / "healthcare-dataset-stroke-data.csv"
+
 @st.cache_data
-def load_data():
-    df = pd.read_csv("healthcare-dataset-stroke-data.csv")
-    df['bmi'] = pd.to_numeric(df['bmi'], errors='coerce')
-    df = df[df['gender'] != 'Other'].copy()
+def load_data(path: Path):
+    df = pd.read_csv(path)
+    df["bmi"] = pd.to_numeric(df["bmi"], errors="coerce")
+    df = df[df["gender"] != "Other"].copy()
     return df
 
-df = load_data()
+try:
+    df = load_data(DATA_PATH)
+except FileNotFoundError:
+    st.error(
+        f"📁 Fichier introuvable : `{DATA_PATH.name}`.\n\n"
+        "Vérifie qu'il est présent dans ton projet."
+    )
+    st.stop()
 
 # ── Sidebar ──────────────────────────────────────────────────────────────────
 with st.sidebar:
@@ -26,52 +37,103 @@ with st.sidebar:
     st.caption("Dataset : Stroke Prediction | Kaggle")
     st.caption("Parcours A — Mastère 2 Data & IA")
 
-# ── Hero ─────────────────────────────────────────────────────────────────────
+# ── Fond blanc + Hero bleu (propre) ──────────────────────────────────────────
 st.markdown("""
 <style>
-[data-testid="stAppViewContainer"] {background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);}
-.stMetric > label {font-size: 1.1rem !important;}
-.stMetric > div > div {font-size: 2.5rem !important; font-weight: 700;}
-.section-card {background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 2rem; margin: 1rem 0;}
-.btn-primary {background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important; border-radius: 12px !important;}
+/* Fond global blanc */
+[data-testid="stAppViewContainer"]{
+    background: #ffffff;
+    color: #000000;
+}
+
+/* Sidebar blanche */
+[data-testid="stSidebar"]{
+    background: #f8f9fa;
+}
+
+/* Hero */
+.hero{
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #1e40af 100%);
+  color: white;
+  text-align: center;
+  border-radius: 24px;
+  padding: 1.5rem 1rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+}
+
+/* Titres */
+h1, h2, h3, h4, h5, h6 {
+    color: #0f172a !important;
+}
+
+/* Texte */
+p, .stMarkdown {
+    color: #1e293b !important;
+}
+
+/* KPIs */
+[data-testid="stMetric"]{
+  background: #ffffff;
+  padding: 1rem;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+[data-testid="stMetric"] > label{
+    color: #475569 !important;
+}
+[data-testid="stMetric"] > div > div{
+    color: #0f172a !important;
+}
+
+/* DataFrame blanc */
+.dataframe th, .dataframe td {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border-color: #e2e8f0 !important;
+}
 </style>
-<div class="section-card" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #1e40af 100%); color: white; text-align: center;">
-<h1 style="font-size: 4rem; margin: 0 0 1rem 0; text-shadow: 0 4px 10px rgba(0,0,0,0.3);">Healthcare Bias Analysis</h1>
+
+<div class="hero">
+    <h1 style="font-size:3rem; margin:0;">Healthcare Bias Analysis</h1>
 </div>
 """, unsafe_allow_html=True)
 
 # ── KPIs ─────────────────────────────────────────────────────────────────────
 total = len(df)
-n_stroke = df['stroke'].sum()
-stroke_rate = n_stroke / total * 100
-missing_bmi = df['bmi'].isnull().sum()
-missing_pct = missing_bmi / total * 100
+n_stroke = int(df["stroke"].sum())
+stroke_rate = n_stroke / total * 100 if total else 0
+missing_bmi = int(df["bmi"].isnull().sum())
+missing_pct = missing_bmi / total * 100 if total else 0
 
 c1, c2, c3, c4 = st.columns(4)
-c1.metric("Patients", f"{total:,}", help="Nombre total de lignes dans le dataset")
-c2.metric("Cas d'AVC", f"{n_stroke}", f"{stroke_rate:.1f}% du total")
-c3.metric("Variables", f"{df.shape[1]}", help="Nombre de colonnes")
-c4.metric("Valeurs manquantes", f"{missing_bmi}", f"{missing_pct:.1f}% (BMI uniquement)")
+c1.metric("Patients", f"{total:,}")
+c2.metric("Cas d'AVC", f"{n_stroke}", f"{stroke_rate:.1f}%")
+c3.metric("Variables", f"{df.shape[1]}")
+c4.metric("Valeurs manquantes (BMI)", f"{missing_bmi}", f"{missing_pct:.1f}%")
 
 st.markdown("---")
 
 # ── Contexte ─────────────────────────────────────────────────────────────────
-col = st.columns(1)[0]
+st.subheader("Contexte et objectifs")
+st.markdown("""
+L'**AVC (Accident Vasculaire Cérébral)** est la 2ème cause de mortalité mondiale et la 3ème
+cause de handicap.
 
-with col:
-    st.subheader("Contexte et objectifs")
-    st.markdown("""
-    L'**AVC (Accident Vasculaire Cérébral)** est la 2ème cause de mortalité mondiale et la 3ème
-    cause de handicap. 
+Cette application vise à :
 
-    Notre objectif est double : **prédire le risque d'AVC** et **détecter les biais potentiels**
-    liés au **genre** (Male/Female) et à la **zone géographique** (Rural/Urban). Ces biais,
-    s'ils existent dans les données d'entraînement, pourraient conduire un modèle à traiter
-    inégalement différents groupes de population — avec des conséquences médicales réelles.
-    """)
+- **Explorer les données médicales**
+- **Prédire le risque d’AVC**
+- **Analyser les biais potentiels** du modèle
+- Identifier les influences du **genre** et de la **résidence** (Rural/Urban)
+
+L’objectif : améliorer l’équité et la fiabilité des prédictions.
+""")
 
 st.markdown("---")
 
-# ── Aperçu données ───────────────────────────────────────────────────────────
-st.subheader("Dataset : aperçu des données")
+# ── Aperçu des données ──────────────────────────────────────────────────────
+st.subheader("Aperçu des données")
+
 st.dataframe(df.head(10), width='stretch')
