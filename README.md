@@ -1,4 +1,4 @@
-#  Stroke Bias Detector
+# Healthcare Bias Analysis
 
 Application Streamlit pour l'analyse et la détection de biais dans la prédiction du risque d'AVC.
 
