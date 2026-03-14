@@ -9,7 +9,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from utils.fairness import demographic_parity_difference, disparate_impact_ratio, equalized_odds
 
-st.set_page_config(page_title="Détection de Biais", page_icon="⚠️", layout="wide")
+st.set_page_config(page_title="Détection de Biais", layout="wide")
 
 # ── Data ─────────────────────────────────────────────────────────────────────
 @st.cache_data
@@ -22,7 +22,7 @@ def load_data():
 df = load_data()
 
 # ── Header ───────────────────────────────────────────────────────────────────
-st.title("⚠️ Détection de Biais")
+st.title("Détection de Biais")
 st.markdown("""
 Analyse des **biais potentiels** dans le dataset selon deux attributs sensibles :
 **le genre** (Male/Female) et **la zone de résidence** (Rural/Urban).
@@ -31,7 +31,7 @@ st.markdown("---")
 
 # ── Sélection de l'attribut sensible ─────────────────────────────────────────
 attr = st.radio(
-    "🎯 Choisir l'attribut sensible à analyser :",
+    "Choisir l'attribut à analyser :",
     ["Genre (gender)", "Zone géographique (Residence_type)"],
     horizontal=True
 )
@@ -50,15 +50,16 @@ else:
 st.markdown("---")
 
 # ── Explication du biais ──────────────────────────────────────────────────────
-with st.expander("📖 Comprendre le biais analysé", expanded=True):
+with st.expander(" Comprendre le biais analysé", expanded=True):
     if sensitive_col == 'gender':
         st.markdown("""
         **Attribut sensible : Genre (Male / Female)**
 
         Dans les datasets médicaux, le genre peut introduire un biais si les taux d'AVC
-        observés diffèrent significativement entre hommes et femmes — non pas à cause de
-        différences biologiques réelles, mais à cause de **sous-représentation**, de pratiques
-        de collecte inégales, ou de facteurs sociaux confondants.
+        observés diffèrent significativement entre hommes et femmes.
+        Par exemple, si les femmes sont sous-représentées ou si les cas d'AVC
+        chez les femmes sont moins diagnostiqués, le modèle pourrait apprendre à 
+        associer un risque plus faible aux femmes.
 
         Un modèle entraîné sur ces données biaisées pourrait **sous-estimer le risque d'AVC
         chez les femmes**, avec des conséquences médicales graves : diagnostic tardif,
@@ -70,12 +71,10 @@ with st.expander("📖 Comprendre le biais analysé", expanded=True):
         """)
     else:
         st.markdown("""
-        **Attribut sensible : Zone géographique (Rural / Urban)**
+        **Attribut : Zone géographique (Rural / Urban)**
 
         Les patients ruraux et urbains peuvent avoir un accès différent aux soins de santé,
-        ce qui influence à la fois la **prévention** et la **détection** des AVC. Si le
-        dataset sur-représente les zones urbaines (souvent mieux équipées en hôpitaux),
-        le modèle risque d'être moins précis pour les patients ruraux.
+        ce qui influence à la fois la **prévention** et la **détection** des AVC.
 
         Un tel biais perpétuerait des **inégalités de santé territoriales** : les populations
         rurales, déjà défavorisées dans l'accès aux soins, recevraient des prédictions
@@ -87,7 +86,7 @@ with st.expander("📖 Comprendre le biais analysé", expanded=True):
         """)
 
 # ── Taux d'AVC par groupe ─────────────────────────────────────────────────────
-st.subheader(f"📊 Taux d'AVC par {label}")
+st.subheader(f"Taux d'AVC par {label}")
 
 group_stats = df.groupby(sensitive_col).agg(
     Total=('stroke', 'count'),
@@ -102,7 +101,6 @@ with col1:
 with col2:
     fig = px.bar(group_stats, x=sensitive_col, y='Taux_AVC (%)',
                  color=sensitive_col,
-                 color_discrete_sequence=['#ef4444', '#3b82f6'],
                  template='plotly_white',
                  text='Taux_AVC (%)',
                  title=f"Taux d'AVC (%) par {label}")
@@ -113,7 +111,7 @@ with col2:
 st.markdown("---")
 
 # ── Métriques de Fairness ─────────────────────────────────────────────────────
-st.subheader("📐 Métriques de Fairness")
+st.subheader("Métriques de Fairness")
 
 y_true = df['stroke'].values
 y_pred = df['stroke'].values   # On analyse les données brutes (pas un modèle)
@@ -130,7 +128,7 @@ m1, m2, m3 = st.columns(3)
 
 diff_val = dp['difference'] * 100
 m1.metric(
-    "📏 Différence de Parité Démographique",
+    " Différence de Parité Démographique",
     f"{diff_val:.2f}%",
     help="Différence absolue des taux d'AVC entre groupes. Idéal = 0%."
 )
@@ -138,15 +136,15 @@ m1.metric(
 ratio_val = di['ratio']
 delta_color = "normal" if 0.8 <= ratio_val <= 1.2 else "inverse"
 m2.metric(
-    "⚖️ Ratio d'Impact Disproportionné",
+    "Ratio d'Impact Disproportionné",
     f"{ratio_val:.3f}",
-    delta="✅ OK (>0.8)" if ratio_val >= 0.8 else "⚠️ Discriminatoire (<0.8)",
+    delta=" OK (>0.8)" if ratio_val >= 0.8 else " Discriminatoire (<0.8)",
     delta_color=delta_color,
     help="Ratio taux groupe non-privilégié / groupe privilégié. Idéal = 1.0. < 0.8 = discriminatoire."
 )
 
 m3.metric(
-    f"🔵 Taux AVC — {unpriv}",
+    f" Taux AVC — {unpriv}",
     f"{di['rate_unprivileged']*100:.2f}%",
     delta=f"vs {priv} : {di['rate_privileged']*100:.2f}%",
     delta_color="off"
@@ -154,16 +152,16 @@ m3.metric(
 
 # Interprétation automatique
 st.markdown("---")
-st.subheader("🔍 Interprétation")
+st.subheader("Interprétation")
 
 if ratio_val < 0.8:
-    bias_level = "🔴 **Biais significatif détecté**"
+    bias_level = "**Biais significatif détecté**"
     bias_color = "#ffcccc"
 elif ratio_val < 0.9:
-    bias_level = "🟠 **Biais modéré détecté**"
+    bias_level = "**Biais modéré détecté**"
     bias_color = "#fff3cd"
 else:
-    bias_level = "🟢 **Pas de biais significatif**"
+    bias_level = "**Pas de biais significatif**"
     bias_color = "#d4edda"
 
 st.markdown(f"""
@@ -208,7 +206,7 @@ else:
 st.markdown("---")
 
 # ── Visualisation détaillée par groupe ───────────────────────────────────────
-st.subheader(f"📊 Analyse détaillée : facteurs de risque par {label}")
+st.subheader(f"Analyse détaillée : facteurs de risque par {label}")
 
 risk_var = st.selectbox("Variable de risque à comparer", ['age', 'avg_glucose_level', 'bmi', 'hypertension'])
 

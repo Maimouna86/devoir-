@@ -14,7 +14,7 @@ from sklearn.metrics import (accuracy_score, precision_score, recall_score,
 from imblearn.over_sampling import SMOTE
 import numpy as np
 
-st.set_page_config(page_title="Modélisation", page_icon="🤖", layout="wide")
+st.set_page_config(page_title="Modélisation", layout="wide")
 
 # ── Data & preprocessing ─────────────────────────────────────────────────────
 @st.cache_data
@@ -45,13 +45,13 @@ X = df[feature_cols]
 y = df['stroke']
 
 # ── Header ───────────────────────────────────────────────────────────────────
-st.title("🤖 Modélisation")
+st.title("Modélisation")
 st.markdown("Entraînement d'un modèle de classification et analyse des biais sur les **prédictions**.")
 st.markdown("---")
 
 # ── Paramètres ───────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.title("⚙️ Paramètres")
+    st.title("Paramètres")
     model_choice = st.selectbox("Modèle", ["Logistic Regression", "Random Forest"])
     use_smote    = st.checkbox("Rééchantillonnage SMOTE (déséquilibre)", value=True)
     test_size    = st.slider("Taille du jeu de test (%)", 10, 40, 20)
@@ -91,7 +91,7 @@ df_test = df.loc[test_idx].copy()
 df_test['y_pred'] = y_pred
 
 # ── Métriques globales ───────────────────────────────────────────────────────
-st.subheader("📊 Performances globales du modèle")
+st.subheader("Performances globales du modèle")
 c1, c2, c3, c4, c5 = st.columns(5)
 c1.metric("Accuracy",  f"{accuracy_score(y_te, y_pred):.3f}")
 c2.metric("Precision", f"{precision_score(y_te, y_pred, zero_division=0):.3f}")
@@ -102,7 +102,7 @@ c5.metric("ROC-AUC",   f"{roc_auc_score(y_te, y_prob):.3f}")
 st.markdown("---")
 
 # ── Confusion matrix globale ─────────────────────────────────────────────────
-st.subheader("🔲 Matrice de confusion globale")
+st.subheader("Matrice de confusion globale")
 cm = confusion_matrix(y_te, y_pred)
 fig = px.imshow(cm, text_auto=True,
                 x=["Prédit: Pas d'AVC", "Prédit: AVC"],
@@ -118,7 +118,7 @@ with col2:
 st.markdown("---")
 
 # ── Fairness sur prédictions ──────────────────────────────────────────────────
-st.subheader(f"⚖️ Métriques de Fairness sur les prédictions — {sensitive_attr}")
+st.subheader(f"Métriques de Fairness sur les prédictions — {sensitive_attr}")
 
 sensitive_test = df_test[sensitive_attr].values
 y_te_arr  = np.array(y_te)
@@ -137,14 +137,14 @@ m1, m2, m3 = st.columns(3)
 m1.metric("Différence de Parité", f"{dp['difference']*100:.2f}%",
           help="Différence des taux de prédiction positive entre groupes.")
 m2.metric("Ratio Impact Disproportionné", f"{di['ratio']:.3f}",
-          delta="✅ OK" if di['ratio'] >= 0.8 else "⚠️ < 0.8",
+          delta="OK" if di['ratio'] >= 0.8 else "< 0.8",
           delta_color="normal" if di['ratio'] >= 0.8 else "inverse")
 m3.metric(f"Taux prédit AVC — {unpriv}", f"{di['rate_unprivileged']*100:.2f}%",
           delta=f"vs {priv} : {di['rate_privileged']*100:.2f}%", delta_color="off")
 
 # ── Confusion matrices par groupe ────────────────────────────────────────────
 st.markdown("---")
-st.subheader(f"🔲 Matrices de confusion par groupe ({sensitive_attr})")
+st.subheader(f"Matrices de confusion par groupe ({sensitive_attr})")
 
 cols = st.columns(len(groups))
 for i, group in enumerate(sorted(groups)):
@@ -168,7 +168,7 @@ for i, group in enumerate(sorted(groups)):
 
 # ── Equalized Odds ────────────────────────────────────────────────────────────
 st.markdown("---")
-st.subheader("📐 Equalized Odds (TPR / FPR par groupe)")
+st.subheader("Equalized Odds (TPR / FPR par groupe)")
 
 eo_df = pd.DataFrame(eo).T.reset_index()
 eo_df.columns = ['Groupe', 'TPR (Recall)', 'FPR']
@@ -196,7 +196,7 @@ with col2:
 # ── Feature importance (RF) ──────────────────────────────────────────────────
 if model_choice == "Random Forest":
     st.markdown("---")
-    st.subheader("🌳 Importance des variables (Random Forest)")
+    st.subheader("Importance des variables (Random Forest)")
     if hasattr(model, 'feature_importances_') and len(feature_cols_used) == len(model.feature_importances_):
         fi = pd.DataFrame({'Feature': feature_cols_used, 'Importance': model.feature_importances_})
         fi = fi.sort_values('Importance', ascending=True).tail(12)
